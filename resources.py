@@ -65,6 +65,3 @@ class UserLogoutRefresh(Resource):
 class TokenRefresh(Resource):
     def post(self):
         return {'message': 'Token refresh'}
-
-class New:
-    pass
