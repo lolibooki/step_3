@@ -10,6 +10,8 @@ api = Api(app)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/students"
 app.config['SECRET_KEY'] = 'some-secret-string'
 app.config['JWT_SECRET_KEY'] = 'jwt-secret-string'
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
 jwt = JWTManager(app)
 mongo = PyMongo(app)
@@ -17,6 +19,11 @@ mongo = PyMongo(app)
 @app.route('/')
 def index():
     return jsonify({'message': 'Hello, World!'})
+
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    jti = decrypted_token['jti']
+    return models.RevokedToken.is_jti_blacklisted({"jti": jti})
 
 import models, resources
 
