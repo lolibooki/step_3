@@ -82,3 +82,8 @@ class TokenRefresh(Resource):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity=current_user)
         return {'access_token': access_token}
+
+# new
+class GetLiveClasses(Resource):
+    def get(self):
+        return models.live_classes()

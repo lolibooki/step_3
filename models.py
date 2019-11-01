@@ -6,6 +6,10 @@ def create_user(new_user):
 def find_one(key):
     return mongo.db.users.find_one(key)
 
+# new
+def live_classes():
+    return mongo.db.lives.find()
+
 class RevokedToken:
     def __init__(self, jti):
         self.query = {'jti': jti}
