@@ -32,7 +32,6 @@ api.add_resource(resources.UserLogin, '/login')
 api.add_resource(resources.UserLogoutAccess, '/logout/access')
 api.add_resource(resources.UserLogoutRefresh, '/logout/refresh')
 api.add_resource(resources.TokenRefresh, '/token/refresh')
-# new
 api.add_resource(resources.GetLiveClasses, '/live')
 
 

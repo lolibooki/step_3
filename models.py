@@ -6,9 +6,9 @@ def create_user(new_user):
 def find_one(key):
     return mongo.db.users.find_one(key)
 
-# new
 def live_classes():
-    return mongo.db.lives.find()
+    lives = [item for item in mongo.db.lives.find({}, {'_id': False})]
+    return lives
 
 class RevokedToken:
     def __init__(self, jti):

@@ -83,7 +83,8 @@ class TokenRefresh(Resource):
         access_token = create_access_token(identity=current_user)
         return {'access_token': access_token}
 
-# new
+
 class GetLiveClasses(Resource):
     def get(self):
+        print(models.live_classes())
         return models.live_classes()
