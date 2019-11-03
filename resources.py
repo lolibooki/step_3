@@ -86,5 +86,4 @@ class TokenRefresh(Resource):
 
 class GetLiveClasses(Resource):
     def get(self):
-        print(models.live_classes())
         return models.live_classes()
