@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 from flask_restful import Api
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager
 
@@ -16,9 +16,11 @@ app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 jwt = JWTManager(app)
 mongo = PyMongo(app)
 
+
 @app.route('/')
 def index():
     return jsonify({'message': 'Hello, World!'})
+
 
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
@@ -36,4 +38,4 @@ api.add_resource(resources.GetLiveClasses, '/live')
 
 
 if __name__ == "__main__":
-	app.run()
+    app.run()
