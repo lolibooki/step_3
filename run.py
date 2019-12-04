@@ -34,7 +34,10 @@ api.add_resource(resources.UserLogin, '/login')
 api.add_resource(resources.UserLogoutAccess, '/logout/access')
 api.add_resource(resources.UserLogoutRefresh, '/logout/refresh')
 api.add_resource(resources.TokenRefresh, '/token/refresh')
-api.add_resource(resources.GetLiveClasses, '/live')
+api.add_resource(resources.GetLiveClasses, '/liveClass')
+api.add_resource(resources.GetRecordedCourses, '/recCourse')
+api.add_resource(resources.GetLiveClasses, '/liveCourse')
+api.add_resource(resources.GetInPersonCourses, '/inpersonCourse')
 
 
 if __name__ == "__main__":

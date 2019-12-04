@@ -6,35 +6,47 @@ from flask_jwt_extended import (create_access_token,
                                 jwt_refresh_token_required,
                                 get_jwt_identity,
                                 get_raw_jwt)
-from userschema import validate_user
+# from userschema import validate_user
 import models
 
 parser = reqparse.RequestParser()
-# parser.add_argument('username', help = 'This field cannot be blank', required = True)
+# parser.add_argument('fname', help = 'This field cannot be blank', required = True)
 # parser.add_argument('password', help = 'This field cannot be blank', required = True)
 
 
 class UserRegistration(Resource):
     def post(self):
-        if validate_user(parser.parse_args()):  # check if incoming data is correct
-            data = parser.parse_args()
-        else:
-            return validate_user(parser.parse_args())
+
+        parser_copy = parser.copy()
+        # required
+        parser_copy.add_argument('fname', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('lname', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('mphone', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('email', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('mcode', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('pass', help='This field cannot be blank', required=True)
+        # not required
+        parser_copy.add_argument('phone', required=False)
+        parser_copy.add_argument('state', required=False)
+        parser_copy.add_argument('city', required=False)
+        parser_copy.add_argument('address', required=False)
+
+        data = parser_copy.parse_args()
 
         if models.find_one({"mphone": data['mphone']}):  # check if user is new or not
-            return {'message': 'User {} already exists'. format(data['username'])}
+            return {'message': 'User {} already exists'. format(data['mphone'])}
 
         new_user = {
             "fname": data['fname'],
             "lname": data['lname'],
             "mphone": data['mphone'],
-            "phone": data['phone'] if data['phone'] in data.keys() else None,
+            "phone": data['phone'],
             "email": data['email'],
             "mcode": data['mcode'],
-            "state": data['state'] if data['state'] in data.keys() else None,
-            "city": data['city'] if data['city'] in data.keys() else None,
-            "address": data['address'] if data['address'] in data.keys() else None,
-            "pass": sha256.hash(data['password']),
+            "state": data['state'],
+            "city": data['city'],
+            "address": data['address'],
+            "pass": sha256.hash(data['pass']),
         }
 
         try:
@@ -52,12 +64,16 @@ class UserRegistration(Resource):
 
 class UserLogin(Resource):
     def post(self):
-        data = parser.parse_args()
+        parser_copy = parser.copy()
+        parser_copy.add_argument('mphone', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('pass', help='This field cannot be blank', required=True)
+        data = parser_copy.parse_args()
+
         current_user = models.find_one({"mphone": data['mphone']})
         if not current_user:
             return {'message': 'User {} doesn\'t exist'.format(data['mphone'])}
-        
-        if sha256.verify(data['password'], current_user['password']):
+
+        if sha256.verify(data['pass'], current_user['pass']):
             access_token = create_access_token(identity=data['mphone'])
             refresh_token = create_refresh_token(identity=data['mphone'])
             return {
