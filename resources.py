@@ -135,3 +135,10 @@ class GetLiveCourses(Resource):
 class GetInPersonCourses(Resource):
     def get(self):
         return models.ip_courses()
+
+
+class Test(Resource):
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        return current_user
