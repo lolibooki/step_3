@@ -8,6 +8,7 @@ from flask_jwt_extended import (create_access_token,
                                 get_raw_jwt)
 # from userschema import validate_user
 import models
+from bson.objectid import ObjectId
 
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
@@ -33,7 +34,7 @@ class UserRegistration(Resource):
 
         data = parser_copy.parse_args()
 
-        if models.find_one({"mphone": data['mphone']}):  # check if user is new or not
+        if models.find_user({"mphone": data['mphone']}):  # check if user is new or not
             return {'message': 'User {} already exists'. format(data['mphone'])}
 
         new_user = {
@@ -69,7 +70,7 @@ class UserLogin(Resource):
         parser_copy.add_argument('pass', help='This field cannot be blank', required=True)
         data = parser_copy.parse_args()
 
-        current_user = models.find_one({"mphone": data['mphone']})
+        current_user = models.find_user({"mphone": data['mphone']})
         if not current_user:
             return {'message': 'User {} doesn\'t exist'.format(data['mphone'])}
 
@@ -142,3 +143,37 @@ class Test(Resource):
     def post(self):
         current_user = get_jwt_identity()
         return current_user
+
+
+class GetUserIPCourses(Resource):
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        user = models.find_user({"mphone": current_user})
+        courses = list()
+        for item in user['ipcourse']:
+            current_course = models.get_user_ip_course(item)
+            current_course['_id'] = str(current_course['id'])
+            courses.append(current_course)
+        return courses
+
+
+class GetUserLiveCourses(Resource):  # TODO: checking users absences
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        user = models.find_user({"mphone": current_user})
+        live_course_ids = list(user['livecourse'].keys())
+        courses = list()
+        for item in live_course_ids:
+            current_course = models.get_user_live_course(item)
+            current_course['_id'] = str(current_course['id'])
+            courses.append(current_course)
+        return courses
+
+
+class GetUserRecCourses(Resource):
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        user = models.find_user({'mphone': current_user})

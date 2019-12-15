@@ -5,7 +5,7 @@ def create_user(new_user):
     mongo.db.users.insert_one(new_user)
 
 
-def find_one(key):
+def find_user(key):
     return mongo.db.users.find_one(key)
 
 
@@ -23,6 +23,10 @@ def ip_courses():
     return ips
 
 
+def get_user_ip_course(course_id):
+    return mongo.db.ip.find_one({'_id': course_id})
+
+
 def rec_courses():
     recs = [item for item in mongo.db.rec.find()]  # return list of recorded courses
     for it in recs:
@@ -35,6 +39,10 @@ def live_courses():
     for it in lives:
         it["_id"] = str(it["_id"])
     return lives
+
+
+def get_user_live_course(course_id):
+    return mongo.db.livc.find_one({'_id': course_id})
 
 
 class RevokedToken:

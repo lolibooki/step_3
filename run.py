@@ -38,6 +38,8 @@ api.add_resource(resources.GetLiveClasses, '/liveClass')
 api.add_resource(resources.GetRecordedCourses, '/recCourse')
 api.add_resource(resources.GetLiveCourses, '/liveCourse')
 api.add_resource(resources.GetInPersonCourses, '/inpersonCourse')
+api.add_resource(resources.GetUserIPCourses, '/userIPCourse')
+api.add_resource(resources.GetUserLiveCourses, '/userLiveCourse')
 api.add_resource(resources.Test, '/test')
 
 
