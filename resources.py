@@ -9,6 +9,7 @@ from flask_jwt_extended import (create_access_token,
 # from userschema import validate_user
 import models
 from bson.objectid import ObjectId
+import datetime
 
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
@@ -177,3 +178,4 @@ class GetUserRecCourses(Resource):
     def post(self):
         current_user = get_jwt_identity()
         user = models.find_user({'mphone': current_user})
+        rec_course_ids = list(user['reccourse'].keys())
