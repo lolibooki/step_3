@@ -198,4 +198,3 @@ class GetUserRecCourses(Resource):
                     current_course['weeks'][week] = None
             courses.append(current_course)
         return courses
-
