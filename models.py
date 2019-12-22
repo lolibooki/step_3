@@ -1,4 +1,5 @@
 from run import mongo
+from bson.objectid import ObjectId
 
 
 def create_user(new_user):
@@ -24,7 +25,7 @@ def ip_courses():
 
 
 def get_user_ip_course(course_id):
-    return mongo.db.ip.find_one({'_id': course_id})
+    return mongo.db.ip.find_one({'_id': ObjectId(course_id)})
 
 
 def rec_courses():
@@ -32,6 +33,10 @@ def rec_courses():
     for it in recs:
         it["_id"] = str(it["_id"])
     return recs
+
+
+def get_user_rec_course(course_id):
+    return mongo.db.rec.find_one({'_id': ObjectId(course_id)})
 
 
 def live_courses():
@@ -42,7 +47,7 @@ def live_courses():
 
 
 def get_user_live_course(course_id):
-    return mongo.db.livc.find_one({'_id': course_id})
+    return mongo.db.livc.find_one({'_id': ObjectId(course_id)})
 
 
 class RevokedToken:

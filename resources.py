@@ -173,9 +173,29 @@ class GetUserLiveCourses(Resource):  # TODO: checking users absences
         return courses
 
 
+# checking for course weeks and does not allow that future weeks include in response json
 class GetUserRecCourses(Resource):
     @jwt_required
     def post(self):
         current_user = get_jwt_identity()
         user = models.find_user({'mphone': current_user})
         rec_course_ids = list(user['reccourse'].keys())
+        current_date = datetime.datetime.now()
+        current_time = datetime.date(current_date.year, current_date.month, current_date.day).isocalendar()
+        courses = list()
+        for item in rec_course_ids:
+            current_course = models.get_user_rec_course(item)
+            current_course['_id'] = str(current_course['id'])
+            course_time = datetime.date(current_course['s_time'].year,
+                                        current_course['s_time'].month,
+                                        current_course['s_time'].day).isocalendar()
+            if current_time[0] == course_time[0]:
+                week_delta = current_time[1] - course_time[1]
+            else:
+                week_delta = current_time[1] + 52 - course_time[1]
+            for week in current_course['weeks']:
+                if int(week) > week_delta:
+                    current_course['weeks'][week] = None
+            courses.append(current_course)
+        return courses
+
