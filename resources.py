@@ -234,7 +234,10 @@ class GetPayUrl(Resource):
         current_user = get_jwt_identity()
         user = models.find_user({'mphone': current_user})
 
-        callback_url = SERVER_IP + '/PayCallback/{}/'.format(data['method']) + str(user['_id']) + '/' + data['_id']
+        callback_url = SERVER_IP + '/PayCallback/{}/{}/{}/{}'.format(data['method'],
+                                                                     str(user['_id']),
+                                                                     data['_id'],
+                                                                     course_price)
 
         client = Client(ZARINPAL_WEBSERVICE)
         result = client.service.PaymentRequest(MMERCHANT_ID,
@@ -246,4 +249,4 @@ class GetPayUrl(Resource):
                     'url': 'https://www.zarinpal.com/pg/StartPay/' + result.Authority}
         else:
             return {'status': 400,
-                    'error': 'Zarinpal is down'}
+                    'error': 'Zarinpal not responding'}
