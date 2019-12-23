@@ -7,10 +7,15 @@ from flask_jwt_extended import (create_access_token,
                                 get_jwt_identity,
                                 get_raw_jwt)
 # from userschema import validate_user
-import models
 from bson.objectid import ObjectId
+from suds.client import Client
+import models
 import datetime
 
+MMERCHANT_ID = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'  # TODO: replace with original merchant id
+ZARINPAL_WEBSERVICE = 'https://www.zarinpal.com/pg/services/WebGate/wsdl'
+PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
+SERVER_IP = '136.243.32.187'
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
 # parser.add_argument('password', help = 'This field cannot be blank', required = True)
@@ -146,6 +151,7 @@ class Test(Resource):
         return current_user
 
 
+# TODO: check for user payment installments
 class GetUserIPCourses(Resource):
     @jwt_required
     def post(self):
@@ -198,3 +204,46 @@ class GetUserRecCourses(Resource):
                     current_course['weeks'][week] = None
             courses.append(current_course)
         return courses
+
+
+class GetPayUrl(Resource):
+    @jwt_required
+    def post(self):
+        parser_copy = parser.copy()
+        parser_copy.add_argument('_id', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('ctype', help='This field cannot be blank', required=True)  # ip/rec/liv
+        parser_copy.add_argument('method', help='This field cannot be blank', required=True)  # 1:full/3:installment
+        data = parser_copy.parse_args()
+
+        if data['ctype'] == "ip":
+            courses = models.ip_courses()
+        elif data['ctype'] == "rec":
+            courses = models.rec_courses()
+        elif data['ctype'] == "liv":
+            courses = models.live_courses()
+        else:
+            return {'status': '400',
+                    'message': 'course type is incorrect'}
+        try:
+            course_price = int(courses[ObjectId(data['_id'])]['price'])/int(data['method'])
+            payment_desc = PAYMENT_DESCRIPTION.format(courses[ObjectId(data['_id'])]['title'])
+        except KeyError as e:
+            return {'status': '400',
+                    'message': e}
+
+        current_user = get_jwt_identity()
+        user = models.find_user({'mphone': current_user})
+
+        callback_url = SERVER_IP + '/PayCallback/{}/'.format(data['method']) + str(user['_id']) + '/' + data['_id']
+
+        client = Client(ZARINPAL_WEBSERVICE)
+        result = client.service.PaymentRequest(MMERCHANT_ID,
+                                               course_price,
+                                               payment_desc,
+                                               callback_url)
+        if result.Status == 100:
+            return {'status': 200,
+                    'url': 'https://www.zarinpal.com/pg/StartPay/' + result.Authority}
+        else:
+            return {'status': 400,
+                    'error': 'Zarinpal is down'}
