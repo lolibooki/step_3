@@ -93,7 +93,15 @@ class UserLogin(Resource):
                 'message': 'Logged in as {}'.format(current_user['mphone']),
                 'access_token': access_token,
                 'refresh_token': refresh_token,
-                'user_data': current_user
+                'user_data': {key: current_user.get(key, None) for key in ['fname',
+                                                                 'lname',
+                                                                 'mphone',
+                                                                 'phone',
+                                                                 'email',
+                                                                 'mcode',
+                                                                 'state',
+                                                                 'city',
+                                                                 'address']}
             }
         else:
             return {'message': 'Wrong credentials'}
