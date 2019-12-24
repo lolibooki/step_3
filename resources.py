@@ -80,6 +80,7 @@ class UserLogin(Resource):
         data = parser_copy.parse_args()
 
         current_user = models.find_user({"mphone": data['mphone']})
+        current_user["_id"] = str(current_user['_id'])
         if not current_user:
             return {'status': 400,
                     'message': 'User {} doesn\'t exist'.format(data['mphone'])}
