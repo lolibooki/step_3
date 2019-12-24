@@ -35,7 +35,8 @@ def check_if_token_in_blacklist(decrypted_token):
 
 
 # TODO: add redirecting to application
-@app.route('/PayCallback/<int:method>/<str:user>/<str:course>/<int:price>/<str:ctype>', methods=['GET', 'POST'])
+@app.route('/PayCallback/<int:method>/<string:user>/<string:course>/<int:price>/<string:ctype>',
+           methods=['GET', 'POST'])
 def verify(method, user, course, price, ctype):
     client = Client(ZARINPAL_WEBSERVICE)
     if request.args.get('Status') == 'OK':
