@@ -41,7 +41,8 @@ class UserRegistration(Resource):
         data = parser_copy.parse_args()
 
         if models.find_user({"mphone": data['mphone']}):  # check if user is new or not
-            return {'message': 'User {} already exists'. format(data['mphone'])}
+            return {'status': 400,
+                    'message': 'User {} already exists'. format(data['mphone'])}
 
         new_user = {
             "fname": data['fname'],
@@ -66,7 +67,8 @@ class UserRegistration(Resource):
                 'refresh_token': refresh_token
             }
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'status': 500,
+                    'message': 'Something went wrong'}
 
 
 class UserLogin(Resource):
@@ -78,15 +80,18 @@ class UserLogin(Resource):
 
         current_user = models.find_user({"mphone": data['mphone']})
         if not current_user:
-            return {'message': 'User {} doesn\'t exist'.format(data['mphone'])}
+            return {'status': 400,
+                    'message': 'User {} doesn\'t exist'.format(data['mphone'])}
 
         if sha256.verify(data['pass'], current_user['pass']):
             access_token = create_access_token(identity=data['mphone'])
             refresh_token = create_refresh_token(identity=data['mphone'])
             return {
+                'status': 200,
                 'message': 'Logged in as {}'.format(current_user['mphone']),
                 'access_token': access_token,
-                'refresh_token': refresh_token
+                'refresh_token': refresh_token,
+                'user_data': current_user
             }
         else:
             return {'message': 'Wrong credentials'}
@@ -99,9 +104,11 @@ class UserLogoutAccess(Resource):
         try:
             revoked_token = models.RevokedToken(jti)
             revoked_token.add()
-            return {'message': 'Access token has been revoked'}
+            return {'status': 200,
+                    'message': 'Access token has been revoked'}
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'status': 500,
+                    'message': 'Something went wrong'}
 
 
 class UserLogoutRefresh(Resource):
@@ -111,9 +118,11 @@ class UserLogoutRefresh(Resource):
         try:
             revoked_token = models.RevokedToken(jti)
             revoked_token.add()
-            return {'message': 'Access token has been revoked'}
+            return {'status': 200,
+                    'message': 'Access token has been revoked'}
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'status': 500,
+                    'message': 'Something went wrong'}
 
 
 class TokenRefresh(Resource):
@@ -121,7 +130,8 @@ class TokenRefresh(Resource):
     def post(self):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity=current_user)
-        return {'access_token': access_token}
+        return {'status': 200,
+                'access_token': access_token}
 
 
 class GetLiveClasses(Resource):
@@ -222,22 +232,23 @@ class GetPayUrl(Resource):
         elif data['ctype'] == "liv":
             courses = models.live_courses()
         else:
-            return {'status': '400',
+            return {'status': 400,
                     'message': 'course type is incorrect'}
         try:
             course_price = int(courses[ObjectId(data['_id'])]['price'])/int(data['method'])
             payment_desc = PAYMENT_DESCRIPTION.format(courses[ObjectId(data['_id'])]['title'])
         except KeyError as e:
-            return {'status': '400',
+            return {'status': 404,
                     'message': e}
 
         current_user = get_jwt_identity()
         user = models.find_user({'mphone': current_user})
 
-        callback_url = SERVER_IP + '/PayCallback/{}/{}/{}/{}'.format(data['method'],
-                                                                     str(user['_id']),
-                                                                     data['_id'],
-                                                                     course_price)
+        callback_url = SERVER_IP + '/PayCallback/{}/{}/{}/{}/{}'.format(data['method'],
+                                                                        str(user['_id']),
+                                                                        data['_id'],
+                                                                        course_price,
+                                                                        data['ctype'])
 
         client = Client(ZARINPAL_WEBSERVICE)
         result = client.service.PaymentRequest(MMERCHANT_ID,
@@ -248,5 +259,5 @@ class GetPayUrl(Resource):
             return {'status': 200,
                     'url': 'https://www.zarinpal.com/pg/StartPay/' + result.Authority}
         else:
-            return {'status': 400,
+            return {'status': 500,
                     'error': 'Zarinpal not responding'}
