@@ -180,7 +180,7 @@ class GetUserIPCourses(Resource):
         courses = list()
         for item in user['ipcourse']:
             current_course = models.get_user_ip_course(item)
-            current_course['_id'] = str(current_course['id'])
+            current_course['_id'] = str(current_course['_id'])
             courses.append(current_course)
         return courses
 
@@ -194,7 +194,7 @@ class GetUserLiveCourses(Resource):  # TODO: checking users absences
         courses = list()
         for item in live_course_ids:
             current_course = models.get_user_live_course(item)
-            current_course['_id'] = str(current_course['id'])
+            current_course['_id'] = str(current_course['_id'])
             courses.append(current_course)
         return courses
 
@@ -211,7 +211,7 @@ class GetUserRecCourses(Resource):
         courses = list()
         for item in rec_course_ids:
             current_course = models.get_user_rec_course(item)
-            current_course['_id'] = str(current_course['id'])
+            current_course['_id'] = str(current_course['_id'])
             course_time = datetime.date(current_course['s_time'].year,
                                         current_course['s_time'].month,
                                         current_course['s_time'].day).isocalendar()
