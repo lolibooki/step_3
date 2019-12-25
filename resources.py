@@ -270,7 +270,7 @@ class GetPayUrl(Resource):
 
         client = Client(ZARINPAL_WEBSERVICE)
         result = client.service.PaymentRequest(MMERCHANT_ID,
-                                               course_price,
+                                               int(course_price),
                                                payment_desc,
                                                callback_url)
         if result.Status == 100:
