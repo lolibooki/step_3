@@ -16,6 +16,8 @@ import datetime
 MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'  # TODO: replace with original merchant id
 ZARINPAL_WEBSERVICE = 'https://www.zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
+MOBILE = '09190734256'
+EMAIL = 'salamat@salamat.ir'
 SERVER_IP = '136.243.32.187'
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
@@ -272,6 +274,8 @@ class GetPayUrl(Resource):
         result = client.service.PaymentRequest(MMERCHANT_ID,
                                                course_price,
                                                payment_desc,
+                                               EMAIL,
+                                               MOBILE,
                                                callback_url)
         # for debug
         print(result, course_price, callback_url, payment_desc)
