@@ -251,6 +251,9 @@ class GetPayUrl(Resource):
                 if item["_id"] == ObjectId(data['_id']):
                     course_price = int(item['price'])/int(data['method'])
                     payment_desc = PAYMENT_DESCRIPTION.format(item['title'])
+            if not course_price or not payment_desc:
+                return {'status': 500,
+                        'message': 'course does not exist'}
         except KeyError as e:
             return {'status': 404,
                     'message': e}
