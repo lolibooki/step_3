@@ -13,7 +13,7 @@ import models
 import datetime
 
 # TODO: make settings file instead of below!
-MMERCHANT_ID = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'  # TODO: replace with original merchant id
+MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'  # TODO: replace with original merchant id
 ZARINPAL_WEBSERVICE = 'https://www.zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
 SERVER_IP = '136.243.32.187'
@@ -245,7 +245,9 @@ class GetPayUrl(Resource):
             return {'status': 400,
                     'message': 'course type is incorrect'}
         try:
-            course_price = int(courses[ObjectId(data['_id'])]['price'])/int(data['method'])
+            for item in courses:
+                if item["_id"] == ObjectId(data['_id']):
+                    course_price = int(item['price'])/int(data['method'])
             payment_desc = PAYMENT_DESCRIPTION.format(courses[ObjectId(data['_id'])]['title'])
         except KeyError as e:
             return {'status': 404,

@@ -7,7 +7,7 @@ from bson.objectid import ObjectId
 from suds.client import Client
 import datetime
 
-MMERCHANT_ID = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'  # TODO: replace with original merchant id
+MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'  # TODO: replace with original merchant id
 ZARINPAL_WEBSERVICE = 'https://www.zarinpal.com/pg/services/WebGate/wsdl'
 
 app = Flask(__name__)
