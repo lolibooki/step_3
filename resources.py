@@ -14,7 +14,7 @@ import datetime
 
 # TODO: make settings file instead of below!
 MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'  # TODO: replace with original merchant id
-ZARINPAL_WEBSERVICE = 'https://www.zarinpal.com/pg/services/WebGate/wsdl'
+ZARINPAL_WEBSERVICE = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
 MOBILE = '09190734256'
 EMAIL = 'salamat@salamat.ir'
