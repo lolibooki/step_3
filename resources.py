@@ -245,6 +245,8 @@ class GetPayUrl(Resource):
             return {'status': 400,
                     'message': 'course type is incorrect'}
         try:
+            course_price = None
+            payment_desc = None
             for item in courses:
                 if item["_id"] == ObjectId(data['_id']):
                     course_price = int(item['price'])/int(data['method'])
