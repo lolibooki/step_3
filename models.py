@@ -18,11 +18,16 @@ def live_classes():
     return lives
 
 
-def ip_courses():
-    ips = [item for item in mongo.db.ip.find()]  # return list of in person courses
-    for it in ips:
-        it["_id"] = str(it["_id"])
-    return ips
+def ip_courses(_id=None):
+    if _id:
+        ip = mongo.db.ip.find({"_id": ObjectId(id)})
+        ip['_id'] = str(ip["_id"])
+        return ip
+    else:
+        ips = [item for item in mongo.db.ip.find()]  # return list of in person courses
+        for it in ips:
+            it["_id"] = str(it["_id"])
+        return ips
 
 
 def get_user_ip_course(course_id):
@@ -35,11 +40,16 @@ def add_user_ip_course(user_id, course_id):
     mongo.db.users.update({"_id": ObjectId(user_id)}, {'$set':{'ipcourse': temp}})
 
 
-def rec_courses():
-    recs = [item for item in mongo.db.rec.find()]  # return list of recorded courses
-    for it in recs:
-        it["_id"] = str(it["_id"])
-    return recs
+def rec_courses(_id=None):
+    if _id:
+        rec = mongo.db.rec.find({"_id": ObjectId(id)})
+        rec['_id'] = str(rec["_id"])
+        return rec
+    else:
+        recs = [item for item in mongo.db.rec.find()]  # return list of recorded courses
+        for it in recs:
+            it["_id"] = str(it["_id"])
+        return recs
 
 
 def get_user_rec_course(course_id):
@@ -52,11 +62,16 @@ def add_user_rec_course(user_id, course_id):
     mongo.db.users.update({"_id": ObjectId(user_id)}, {'$set': {'reccourse': temp}})
 
 
-def live_courses():
-    lives = [item for item in mongo.db.livc.find()]  # return list of live courses
-    for it in lives:
-        it["_id"] = str(it["_id"])
-    return lives
+def live_courses(_id=None):
+    if _id:
+        live = mongo.db.livc.find({"_id": ObjectId(id)})
+        live['_id'] = str(live["_id"])
+        return live
+    else:
+        lives = [item for item in mongo.db.livc.find()]  # return list of live courses
+        for it in lives:
+            it["_id"] = str(it["_id"])
+        return lives
 
 
 def get_user_live_course(course_id):

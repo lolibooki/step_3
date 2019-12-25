@@ -236,21 +236,21 @@ class GetPayUrl(Resource):
         data = parser_copy.parse_args()
 
         if data['ctype'] == "ip":
-            courses = models.ip_courses()
+            courses = models.ip_courses(_id=data['_id'])
         elif data['ctype'] == "rec":
-            courses = models.rec_courses()
+            courses = models.rec_courses(_id=data['_id'])
         elif data['ctype'] == "liv":
-            courses = models.live_courses()
+            courses = models.live_courses(_id=data['_id'])
         else:
             return {'status': 400,
-                    'message': 'course type is incorrect'}
+                    'message': 'course type or id is incorrect'}
         try:
-            course_price = None
-            payment_desc = None
-            for item in courses:
-                if item["_id"] == ObjectId(data['_id']):
-                    course_price = int(item['price'])/int(data['method'])
-                    payment_desc = PAYMENT_DESCRIPTION.format(item['title'])
+            course_price = int(courses['price'])/int(data['method'])
+            payment_desc = PAYMENT_DESCRIPTION.format(courses['title'])
+            # for item in courses:
+            #     if item["_id"] == ObjectId(data['_id']):
+            #         course_price = int(item['price'])/int(data['method'])
+            #         payment_desc = PAYMENT_DESCRIPTION.format(item['title'])
             if not course_price or not payment_desc:
                 return {'status': 500,
                         'message': 'course does not exist'}
