@@ -20,7 +20,7 @@ def live_classes():
 
 def ip_courses(_id=None):
     if _id:
-        ip = mongo.db.ip.find({"_id": ObjectId(id)})
+        ip = mongo.db.ip.find({"_id": ObjectId(_id)})
         ip['_id'] = str(ip["_id"])
         return ip
     else:
@@ -42,7 +42,7 @@ def add_user_ip_course(user_id, course_id):
 
 def rec_courses(_id=None):
     if _id:
-        rec = mongo.db.rec.find({"_id": ObjectId(id)})
+        rec = mongo.db.rec.find({"_id": ObjectId(_id)})
         rec['_id'] = str(rec["_id"])
         return rec
     else:
@@ -64,7 +64,7 @@ def add_user_rec_course(user_id, course_id):
 
 def live_courses(_id=None):
     if _id:
-        live = mongo.db.livc.find({"_id": ObjectId(id)})
+        live = mongo.db.livc.find({"_id": ObjectId(_id)})
         live['_id'] = str(live["_id"])
         return live
     else:
