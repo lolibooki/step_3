@@ -248,7 +248,7 @@ class GetPayUrl(Resource):
             for item in courses:
                 if item["_id"] == ObjectId(data['_id']):
                     course_price = int(item['price'])/int(data['method'])
-            payment_desc = PAYMENT_DESCRIPTION.format(courses[ObjectId(data['_id'])]['title'])
+                    payment_desc = PAYMENT_DESCRIPTION.format(item['title'])
         except KeyError as e:
             return {'status': 404,
                     'message': e}

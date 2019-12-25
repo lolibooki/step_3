@@ -14,8 +14,8 @@
       <file leaf-file-name="resources.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/resources.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="566">
-              <caret line="255" column="41" lean-forward="true" selection-start-line="255" selection-start-column="41" selection-end-line="255" selection-end-column="41" />
+            <state relative-caret-position="481">
+              <caret line="250" column="66" lean-forward="false" selection-start-line="250" selection-start-column="66" selection-end-line="250" selection-end-column="66" />
               <folding>
                 <element signature="e#0#44#0" expanded="true" />
               </folding>
@@ -572,8 +572,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/resources.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="566">
-          <caret line="255" column="41" lean-forward="true" selection-start-line="255" selection-start-column="41" selection-end-line="255" selection-end-column="41" />
+        <state relative-caret-position="481">
+          <caret line="250" column="66" lean-forward="false" selection-start-line="250" selection-start-column="66" selection-end-line="250" selection-end-column="66" />
           <folding>
             <element signature="e#0#44#0" expanded="true" />
           </folding>
