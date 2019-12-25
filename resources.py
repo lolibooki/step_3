@@ -245,7 +245,8 @@ class GetPayUrl(Resource):
             return {'status': 400,
                     'message': 'course type or id is incorrect'}
         try:
-            course_price = float(courses['price'])/int(data['method'])
+            # TODO: in db all prices must be in integer form not price with "," sign!
+            course_price = int(courses['price'].replace(',', ''))/int(data['method'])
             payment_desc = PAYMENT_DESCRIPTION.format(courses['title'])
             # for item in courses:
             #     if item["_id"] == ObjectId(data['_id']):
@@ -269,7 +270,7 @@ class GetPayUrl(Resource):
 
         client = Client(ZARINPAL_WEBSERVICE)
         result = client.service.PaymentRequest(MMERCHANT_ID,
-                                               int(course_price),
+                                               course_price,
                                                payment_desc,
                                                callback_url)
         if result.Status == 100:
