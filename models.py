@@ -97,6 +97,10 @@ def submit_pay(buyer, course, ref_id, method):  # TODO: check if payment is in d
         return False
 
 
+def send_message(message):
+    mongo.db.messages.insert_one(message)
+
+
 class RevokedToken:
     def __init__(self, jti):
         self.query = {'jti': jti}

@@ -9,7 +9,7 @@ from flask_jwt_extended import (create_access_token,
 # from userschema import validate_user
 # from bson.objectid import ObjectId
 from suds.client import Client
-import werkzeug
+import werkzeug, os
 import models
 import datetime
 
@@ -20,6 +20,7 @@ PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
 MOBILE = '09190734256'
 EMAIL = 'salamat@salamat.ir'
 SERVER_IP = '136.243.32.187'
+UPLOAD_FOLDER = "static/uploads"
 ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=15)  # access token expiration time
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
@@ -292,25 +293,48 @@ class GetPayUrl(Resource):
                     'error': 'Zarinpal not responding'}
 
 
-class FileUpload(Resource):
+class SendMessage(Resource):
     @jwt_required
     def post(self):
         parser_copy = parser.copy()
         parser_copy.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files')
 
-        parser_copy.add_argument('course_id', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('to', help='This field cannot be blank', required=True)
         parser_copy.add_argument('title', help='This field cannot be blank', required=True)
-        parser_copy.add_argument('message', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('body', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('reply', required=False)  # id of replied message
 
-        data = parser.parse_args()
+        data = parser_copy.parse_args()
+        print(data)
 
         current_user = get_jwt_identity()
         user = models.find_user({'mphone': current_user})
 
+        message = {
+            'title': data['title'],
+            'body': data['body'],
+            'sender': user['_id'],
+            'receiver': data['to'],
+            'reply': data['reply'],
+            'active': True,
+            'date': datetime.datetime.now()
+        }
+
         if data['file'] == "":
-            return {'status': 400,
-                    'message': 'no file found'}
+            models.send_message(message)
+            return {'status': 200,
+                    'message': 'email sent'}
 
         file = data['file']
         if file:
-            pass
+            file_name = '{}-{}-{}'.format(str(datetime.datetime.now().date()).replace('-', ''),
+                                          user['_id'],
+                                          file.filename)
+            file.save(os.path.join(UPLOAD_FOLDER, file_name))
+            message['attach'] = file_name
+            models.send_message(message)
+            return {'status': 200,
+                    'message': 'email sent'}
+        return {'status': 500,
+                'message': 'something went wrong!'}
+
