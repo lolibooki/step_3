@@ -7,7 +7,7 @@ from bson.objectid import ObjectId
 from suds.client import Client
 import datetime
 
-MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'  # TODO: replace with original merchant id
+MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
 ZARINPAL_WEBSERVICE = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
 
 app = Flask(__name__)
@@ -21,6 +21,15 @@ app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
 jwt = JWTManager(app)
 mongo = PyMongo(app)
+
+
+@jwt.expired_token_loader
+def my_expired_token_callback(expired_token):
+    token_type = expired_token['type']
+    return jsonify({
+        'status': 403,
+        'message': 'The {} token has expired'.format(token_type)
+    }), 403
 
 
 @app.route('/')

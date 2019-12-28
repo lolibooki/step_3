@@ -7,18 +7,20 @@ from flask_jwt_extended import (create_access_token,
                                 get_jwt_identity,
                                 get_raw_jwt)
 # from userschema import validate_user
-from bson.objectid import ObjectId
+# from bson.objectid import ObjectId
 from suds.client import Client
+import werkzeug
 import models
 import datetime
 
 # TODO: make settings file instead of below!
-MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'  # TODO: replace with original merchant id
+MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
 ZARINPAL_WEBSERVICE = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
 MOBILE = '09190734256'
 EMAIL = 'salamat@salamat.ir'
 SERVER_IP = '136.243.32.187'
+ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=15)  # access token expiration time
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
 # parser.add_argument('password', help = 'This field cannot be blank', required = True)
@@ -62,7 +64,8 @@ class UserRegistration(Resource):
 
         try:
             models.create_user(new_user)
-            access_token = create_access_token(identity=data['mphone'])
+            access_token = create_access_token(identity=data['mphone'],
+                                               expires_delta=ACCESS_TOKEN_EXPIRE)
             refresh_token = create_refresh_token(identity=data['mphone'])
             return {
                 'message': 'User {} {} was created'.format(data['fname'], data['lname']),
@@ -88,7 +91,8 @@ class UserLogin(Resource):
                     'message': 'User {} doesn\'t exist'.format(data['mphone'])}
 
         if sha256.verify(data['pass'], current_user['pass']):
-            access_token = create_access_token(identity=data['mphone'])
+            access_token = create_access_token(identity=data['mphone'],
+                                               expires_delta=ACCESS_TOKEN_EXPIRE)
             refresh_token = create_refresh_token(identity=data['mphone'])
             return {
                 'status': 200,
@@ -96,14 +100,14 @@ class UserLogin(Resource):
                 'access_token': access_token,
                 'refresh_token': refresh_token,
                 'user_data': {key: current_user.get(key, None) for key in ['fname',
-                                                                 'lname',
-                                                                 'mphone',
-                                                                 'phone',
-                                                                 'email',
-                                                                 'mcode',
-                                                                 'state',
-                                                                 'city',
-                                                                 'address']}
+                                                                           'lname',
+                                                                           'mphone',
+                                                                           'phone',
+                                                                           'email',
+                                                                           'mcode',
+                                                                           'state',
+                                                                           'city',
+                                                                           'address']}
             }
         else:
             return {'message': 'Wrong credentials'}
@@ -141,7 +145,8 @@ class TokenRefresh(Resource):
     @jwt_refresh_token_required
     def post(self):
         current_user = get_jwt_identity()
-        access_token = create_access_token(identity=current_user)
+        access_token = create_access_token(identity=current_user,
+                                           expires_delta=ACCESS_TOKEN_EXPIRE)
         return {'status': 200,
                 'access_token': access_token}
 
@@ -285,3 +290,27 @@ class GetPayUrl(Resource):
         else:
             return {'status': 500,
                     'error': 'Zarinpal not responding'}
+
+
+class FileUpload(Resource):
+    @jwt_required
+    def post(self):
+        parser_copy = parser.copy()
+        parser_copy.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files')
+
+        parser_copy.add_argument('course_id', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('title', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('message', help='This field cannot be blank', required=True)
+
+        data = parser.parse_args()
+
+        current_user = get_jwt_identity()
+        user = models.find_user({'mphone': current_user})
+
+        if data['file'] == "":
+            return {'status': 400,
+                    'message': 'no file found'}
+
+        file = data['file']
+        if file:
+            pass
