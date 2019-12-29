@@ -1,3 +1,4 @@
+# TODO: all functions needs docstring
 from run import mongo
 from bson.objectid import ObjectId
 import datetime
@@ -62,6 +63,19 @@ def add_user_rec_course(user_id, course_id):
     mongo.db.users.update({"_id": ObjectId(user_id)}, {'$set': {'reccourse': temp}})
 
 
+# TODO: bellow function needs a heavy debug!!
+def user_rec_exc_update(user, course, message):
+    """
+    :param user: ObjectId
+    :param course: String
+    :param message: ObjectId
+    :return: null
+    """
+    temp = find_user({"_id": user})['reccourse'][ObjectId(course)]  # returns list of exercises for course
+    temp.append(message)
+    mongo.db.users.update({"_id": user}, {'$set': {'reccourse': {ObjectId(course): temp}}})
+
+
 def live_courses(_id=None):
     if _id:
         live = mongo.db.livc.find_one({"_id": ObjectId(_id)})
@@ -98,7 +112,8 @@ def submit_pay(buyer, course, ref_id, method):  # TODO: check if payment is in d
 
 
 def send_message(message):
-    mongo.db.messages.insert_one(message)
+    _id = mongo.db.messages.insert_one(message)
+    return _id
 
 
 class RevokedToken:

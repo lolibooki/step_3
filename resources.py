@@ -293,7 +293,7 @@ class GetPayUrl(Resource):
                     'error': 'Zarinpal not responding'}
 
 
-class SendMessage(Resource):
+class SendMessage(Resource):  # TODO: add exercise field to db
     @jwt_required
     def post(self):
         parser_copy = parser.copy()
@@ -303,6 +303,7 @@ class SendMessage(Resource):
         parser_copy.add_argument('title', help='This field cannot be blank', required=True)
         parser_copy.add_argument('body', help='This field cannot be blank', required=True)
         parser_copy.add_argument('reply', required=False)  # id of replied message
+        parser_copy.add_argument('exc', required=False)  # boolean to check if its a exercise or not
 
         data = parser_copy.parse_args()
         print(data)
@@ -316,11 +317,15 @@ class SendMessage(Resource):
             'sender': user['_id'],
             'receiver': data['to'],
             'reply': data['reply'],
+            'exc': data['exc'],
             'active': True,
             'date': datetime.datetime.now()
         }
 
         if data['file'] == "":
+            if data['exc']:
+                return {'status': 400,
+                        'message': 'exercise file not included'}
             models.send_message(message)
             return {'status': 200,
                     'message': 'email sent'}
@@ -332,7 +337,9 @@ class SendMessage(Resource):
                                           file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, file_name))
             message['attach'] = file_name
-            models.send_message(message)
+            message_id = models.send_message(message)
+            if data['exc']:
+                models.user_rec_exc_update(user['_id'], data['receiver'], message_id)
             return {'status': 200,
                     'message': 'email sent'}
         return {'status': 500,
