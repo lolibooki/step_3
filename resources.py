@@ -22,7 +22,7 @@ MOBILE = '09190734256'
 EMAIL = 'salamat@salamat.ir'
 SERVER_IP = '136.243.32.187'
 UPLOAD_FOLDER = "static/uploads"
-ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=15)  # access token expiration time
+ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=30)  # access token expiration time
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
 # parser.add_argument('password', help = 'This field cannot be blank', required = True)
