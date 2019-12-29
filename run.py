@@ -101,4 +101,4 @@ api.add_resource(resources.Test, '/test')
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

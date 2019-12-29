@@ -13,6 +13,7 @@ from suds.client import Client
 import werkzeug, os
 import models
 import datetime
+import logging
 
 # TODO: make settings file instead of below!
 MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
@@ -26,6 +27,10 @@ ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=30)  # access token expiration 
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
 # parser.add_argument('password', help = 'This field cannot be blank', required = True)
+
+logging.basicConfig(format='%s(asctime)s - %(message)s',
+                    level=logging.DEBUG,
+                    filename='logs/app.log')
 
 
 class UserRegistration(Resource):
@@ -48,6 +53,7 @@ class UserRegistration(Resource):
         data = parser_copy.parse_args()
 
         if models.find_user({"mphone": data['mphone']}):  # check if user is new or not
+            logging.warning('request for registering user that exists. user: {}'.format(data['mphone']))
             return {'status': 400,
                     'message': 'User {} already exists'. format(data['mphone'])}
 
@@ -69,12 +75,15 @@ class UserRegistration(Resource):
             access_token = create_access_token(identity=data['mphone'],
                                                expires_delta=ACCESS_TOKEN_EXPIRE)
             refresh_token = create_refresh_token(identity=data['mphone'])
+            logging.info('user created. user: {}'.format(data['mphone']))
             return {
+                'status': 200,
                 'message': 'User {} {} was created'.format(data['fname'], data['lname']),
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }
-        except:
+        except Exception as e:
+            logging.error('exception occurred', exc_info=True)
             return {'status': 500,
                     'message': 'Something went wrong'}
 
@@ -96,6 +105,7 @@ class UserLogin(Resource):
             access_token = create_access_token(identity=data['mphone'],
                                                expires_delta=ACCESS_TOKEN_EXPIRE)
             refresh_token = create_refresh_token(identity=data['mphone'])
+            logging.info('user logged in. user: {}'.format(data['mphone']))
             return {
                 'status': 200,
                 'message': 'Logged in as {}'.format(current_user['mphone']),
@@ -112,7 +122,9 @@ class UserLogin(Resource):
                                                                            'address']}
             }
         else:
-            return {'message': 'Wrong credentials'}
+            logging.warning('unsuccessful login attempt. ip: {}'.format(reqparse.request.remote_addr))
+            return {'status': 400,
+                    'message': 'Wrong credentials'}
 
 
 class UserLogoutAccess(Resource):
@@ -124,7 +136,8 @@ class UserLogoutAccess(Resource):
             revoked_token.add()
             return {'status': 200,
                     'message': 'Access token has been revoked'}
-        except:
+        except Exception as e:
+            logging.error('exception occurred', exc_info=True)
             return {'status': 500,
                     'message': 'Something went wrong'}
 
@@ -138,7 +151,8 @@ class UserLogoutRefresh(Resource):
             revoked_token.add()
             return {'status': 200,
                     'message': 'Access token has been revoked'}
-        except:
+        except Exception as e:
+            logging.error('exception occurred', exc_info=True)
             return {'status': 500,
                     'message': 'Something went wrong'}
 
@@ -149,6 +163,7 @@ class TokenRefresh(Resource):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity=current_user,
                                            expires_delta=ACCESS_TOKEN_EXPIRE)
+        logging.info('request for refreshing token. user: {} ip: {}'.format(current_user, reqparse.request.remote_addr))
         return {'status': 200,
                 'access_token': access_token}
 
