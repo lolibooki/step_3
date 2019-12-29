@@ -116,6 +116,18 @@ def send_message(message):
     return _id
 
 
+def get_message(method, user):
+    """
+    :param method: str: sent/get
+    :param user: ObjectId or str(admin)
+    :return: list of messages
+    """
+    if method == "sent":
+        return mongo.db.messages.find({"sender": user})
+    elif method == "get":
+        return mongo.db.messages.find({"receiver": user})
+
+
 class RevokedToken:
     def __init__(self, jti):
         self.query = {'jti': jti}

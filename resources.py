@@ -3,6 +3,7 @@ from passlib.hash import pbkdf2_sha256 as sha256
 from flask_jwt_extended import (create_access_token,
                                 create_refresh_token,
                                 jwt_required,
+                                jwt_optional,
                                 jwt_refresh_token_required,
                                 get_jwt_identity,
                                 get_raw_jwt)
@@ -332,6 +333,7 @@ class SendMessage(Resource):  # TODO: add exercise field to db
 
         file = data['file']
         if file:
+            # file name format is: "date-user_id-filename" like: "201985-5db425890dfc269af386f9f0-file.zip"
             file_name = '{}-{}-{}'.format(str(datetime.datetime.now().date()).replace('-', ''),
                                           user['_id'],
                                           file.filename)
@@ -345,3 +347,28 @@ class SendMessage(Resource):  # TODO: add exercise field to db
         return {'status': 500,
                 'message': 'something went wrong!'}
 
+
+class GetMessages(Resource):
+    @jwt_optional
+    def post(self):
+        parser_copy = parser.copy()
+        parser_copy.add_argument('method', help='This field cannot be blank', required=True)  # sent or get
+        parser_copy.add_argument('admin', required=False)  # boolean: if request for admin or not
+
+        data = parser_copy.parse_args()
+
+        current_user = get_jwt_identity()
+        if current_user:
+            user = models.find_user({'mphone': current_user})
+            messages = models.get_message(data['method'], user['_id'])
+        else:
+            if data['admin']:
+                messages = models.get_message(data['methid'], 'admin')
+            else:
+                return {'status': 400,
+                        'message': 'if jwt not included admin field must include'}
+        for item in messages:
+            item['_id'] = str(item['_id'])
+            if item['reply']:
+                item['reply'] = str(item['reply'])
+        return messages
