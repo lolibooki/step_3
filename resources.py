@@ -368,6 +368,7 @@ class SendMessage(Resource):  # TODO: add exercise field to db
                 'message': 'something went wrong!'}
 
 
+# TODO: deactivating mails base on click
 class GetMessages(Resource):
     @jwt_optional
     def post(self):
@@ -383,10 +384,10 @@ class GetMessages(Resource):
             messages = models.get_message(data['method'], user['_id'])
         else:
             if data['admin']:
-                messages = models.get_message(data['methid'], 'admin')
+                messages = models.get_message(data['method'], 'admin')
             else:
                 return {'status': 400,
-                        'message': 'if jwt not included admin field must include'}
+                        'message': 'if jwt not included admin field must be include'}
         for item in messages:
             item['_id'] = str(item['_id'])
             if item['reply']:
