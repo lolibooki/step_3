@@ -17,11 +17,11 @@ import logging
 
 # TODO: make settings file instead of below!
 MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
-ZARINPAL_WEBSERVICE = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
+ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
 MOBILE = '09190734256'
 EMAIL = 'salamat@salamat.ir'
-SERVER_IP = '136.243.32.187'
+SERVER_IP = 'http://136.243.32.187'
 UPLOAD_FOLDER = "static/uploads"
 ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=30)  # access token expiration time
 parser = reqparse.RequestParser()
@@ -170,21 +170,25 @@ class TokenRefresh(Resource):
 
 class GetLiveClasses(Resource):
     def get(self):
+        logging.info('get live class request. ip: {}'.format(reqparse.request.remote_addr))
         return models.live_classes()
 
 
 class GetRecordedCourses(Resource):
     def get(self):
+        logging.info('get recorded courses request. ip: {}'.format(reqparse.request.remote_addr))
         return models.rec_courses()
 
 
 class GetLiveCourses(Resource):
     def get(self):
+        logging.info('get live courses request. ip: {}'.format(reqparse.request.remote_addr))
         return models.live_courses()
 
 
 class GetInPersonCourses(Resource):
     def get(self):
+        logging.info('get in person courses request. ip: {}'.format(reqparse.request.remote_addr))
         return models.ip_courses()
 
 
@@ -192,6 +196,7 @@ class Test(Resource):
     @jwt_required
     def post(self):
         current_user = get_jwt_identity()
+        logging.info('TEST check. ip: {}'.format(reqparse.request.remote_addr))
         return current_user
 
 

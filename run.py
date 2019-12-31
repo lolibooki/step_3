@@ -8,7 +8,7 @@ from suds.client import Client
 import datetime
 
 MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
-ZARINPAL_WEBSERVICE = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl'
+ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
 
 app = Flask(__name__)
 api = Api(app)
