@@ -343,7 +343,7 @@ class SendMessage(Resource):  # TODO: add exercise field to db
             'date': datetime.datetime.now()
         }
 
-        if data['file'] == "":
+        if not data['file']:
             if data['exc']:
                 return {'status': 400,
                         'message': 'exercise file not included'}
