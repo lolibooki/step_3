@@ -390,6 +390,8 @@ class GetMessages(Resource):
                         'message': 'if jwt not included admin field must be include'}
         for item in messages:
             item['_id'] = str(item['_id'])
+            item['sender'] = str(item['sender'])
+            item['receiver'] = str(item['receiver'])
             if item['reply']:
                 item['reply'] = str(item['reply'])
         return messages
