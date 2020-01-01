@@ -8,7 +8,7 @@ from flask_jwt_extended import (create_access_token,
                                 get_jwt_identity,
                                 get_raw_jwt)
 # from userschema import validate_user
-# from bson.objectid import ObjectId
+# from bson.json_util import dumps
 from suds.client import Client
 import werkzeug, os
 import models
@@ -358,7 +358,7 @@ class SendMessage(Resource):  # TODO: add exercise field to db
                                           user['_id'],
                                           file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, file_name))
-            message['attach'] = file_name
+            message['attach'] = os.path.join(UPLOAD_FOLDER, file_name)
             message_id = models.send_message(message)
             if data['exc']:
                 models.user_rec_exc_update(user['_id'], data['receiver'], message_id)
@@ -369,6 +369,7 @@ class SendMessage(Resource):  # TODO: add exercise field to db
 
 
 # TODO: deactivating mails base on click
+# TODO: TypeError: Object of type 'datetime' is not JSON serializable
 class GetMessages(Resource):
     @jwt_optional
     def post(self):
@@ -387,11 +388,14 @@ class GetMessages(Resource):
                 messages = models.get_message(data['method'], 'admin')
             else:
                 return {'status': 400,
-                        'message': 'if jwt not included admin field must be include'}
+                        'message': 'if not login, admin field must be include'}
+        json_message = list()
         for item in messages:
             item['_id'] = str(item['_id'])
             item['sender'] = str(item['sender'])
             item['receiver'] = str(item['receiver'])
+            item['date'] = item['date'].isoformat()
             if item['reply']:
                 item['reply'] = str(item['reply'])
-        return messages
+            json_message.append(item)
+        return json_message
