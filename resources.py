@@ -88,6 +88,7 @@ class UserRegistration(Resource):
                     'message': 'Something went wrong'}
 
 
+# TODO: error handling the incorrect user name
 class UserLogin(Resource):
     def post(self):
         parser_copy = parser.copy()
@@ -95,11 +96,11 @@ class UserLogin(Resource):
         parser_copy.add_argument('pass', help='This field cannot be blank', required=True)
         data = parser_copy.parse_args()
 
-        current_user = models.find_user({"mphone": data['mphone']})
-        if not current_user:
+        if not models.find_user({"mphone": data['mphone']}):
             return {'status': 400,
                     'message': 'User {} doesn\'t exist'.format(data['mphone'])}
 
+        current_user = models.find_user({"mphone": data['mphone']})
         if sha256.verify(data['pass'], current_user['pass']):
             access_token = create_access_token(identity=data['mphone'],
                                                expires_delta=ACCESS_TOKEN_EXPIRE)
