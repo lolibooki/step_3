@@ -369,7 +369,6 @@ class SendMessage(Resource):  # TODO: add exercise field to db
 
 
 # TODO: deactivating mails base on click
-# TODO: TypeError: Object of type 'datetime' is not JSON serializable
 class GetMessages(Resource):
     @jwt_optional
     def post(self):

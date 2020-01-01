@@ -3,6 +3,7 @@ from flask_restful import Api
 # from flask_sqlalchemy import SQLAlchemy
 from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from bson.objectid import ObjectId
 from suds.client import Client
 import datetime
@@ -21,6 +22,7 @@ app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
 jwt = JWTManager(app)
 mongo = PyMongo(app)
+CORS(app)
 
 
 @jwt.expired_token_loader
