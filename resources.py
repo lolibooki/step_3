@@ -96,7 +96,6 @@ class UserLogin(Resource):
         data = parser_copy.parse_args()
 
         current_user = models.find_user({"mphone": data['mphone']})
-        current_user["_id"] = str(current_user['_id'])
         if not current_user:
             return {'status': 400,
                     'message': 'User {} doesn\'t exist'.format(data['mphone'])}
@@ -105,6 +104,7 @@ class UserLogin(Resource):
             access_token = create_access_token(identity=data['mphone'],
                                                expires_delta=ACCESS_TOKEN_EXPIRE)
             refresh_token = create_refresh_token(identity=data['mphone'])
+            current_user["_id"] = str(current_user['_id'])
             logging.info('user logged in. user: {}'.format(data['mphone']))
             return {
                 'status': 200,
