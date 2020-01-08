@@ -243,7 +243,6 @@ class GetUserRecCourses(Resource):
         for item in rec_course_ids:
             current_course = models.get_user_rec_course(item)
             current_course['_id'] = str(current_course['_id'])
-            current_course['s_time'] = current_course['s_time'].isoformat()
             course_time = datetime.date(current_course['s_time'].year,
                                         current_course['s_time'].month,
                                         current_course['s_time'].day).isocalendar()
@@ -254,6 +253,7 @@ class GetUserRecCourses(Resource):
             for week in current_course['weeks']:
                 if int(week) > week_delta:
                     current_course['weeks'][week] = None
+            current_course['s_time'] = current_course['s_time'].isoformat()
             courses.append(current_course)
         return courses
 
