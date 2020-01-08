@@ -16,6 +16,7 @@ def live_classes():
     lives = [item for item in mongo.db.lives.find()]  # return list of live classes
     for it in lives:
         it["_id"] = str(it["_id"])
+        it['s_time'] = it['s_time'].isoformat()
     return lives
 
 
@@ -23,11 +24,13 @@ def ip_courses(_id=None):
     if _id:
         ip = mongo.db.ip.find_one({"_id": ObjectId(_id)})
         ip["_id"] = str(ip["_id"])
+        ip['s_time'] = ip['s_time'].isoformat()
         return ip
     else:
         ips = [item for item in mongo.db.ip.find()]  # return list of in person courses
         for it in ips:
             it["_id"] = str(it["_id"])
+            it['s_time'] = it['s_time'].isoformat()
         return ips
 
 
@@ -45,6 +48,7 @@ def rec_courses(_id=None):
     if _id:
         rec = mongo.db.rec.find_one({"_id": ObjectId(_id)})
         rec["_id"] = str(rec["_id"])
+        rec['s_time'] = rec['s_time'].isoformat()
         return rec
     else:
         recs = [item for item in mongo.db.rec.find()]  # return list of recorded courses
@@ -81,11 +85,13 @@ def live_courses(_id=None):
     if _id:
         live = mongo.db.livc.find_one({"_id": ObjectId(_id)})
         live["_id"] = str(live["_id"])
+        live['s_time'] = live['s_time'].isoformat()
         return live
     else:
         lives = [item for item in mongo.db.livc.find()]  # return list of live courses
         for it in lives:
             it["_id"] = str(it["_id"])
+            it['s_time'] = it['s_time'].isoformat()
         return lives
 
 
