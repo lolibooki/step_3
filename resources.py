@@ -328,6 +328,7 @@ class SendMessage(Resource):  # TODO: add exercise field to db
         parser_copy.add_argument('exc', required=False)  # boolean to check if its a exercise or not
 
         data = parser_copy.parse_args()
+        print(data)
 
         current_user = get_jwt_identity()
         user = models.find_user({'mphone': current_user})
