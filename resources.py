@@ -243,6 +243,7 @@ class GetUserRecCourses(Resource):
         for item in rec_course_ids:
             current_course = models.get_user_rec_course(item)
             current_course['_id'] = str(current_course['_id'])
+            current_course['s_time'] = current_course['s_time'].isoformat()
             course_time = datetime.date(current_course['s_time'].year,
                                         current_course['s_time'].month,
                                         current_course['s_time'].day).isocalendar()
