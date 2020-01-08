@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_restful import Api
 # from flask_sqlalchemy import SQLAlchemy
 from flask_pymongo import PyMongo
@@ -36,7 +36,8 @@ def my_expired_token_callback(expired_token):
 
 @app.route('/')
 def index():
-    return jsonify({'message': 'Hello, World!'})
+    return render_template('index.html')
+    # return jsonify({'message': 'Hello, World!'})
 
 
 @jwt.token_in_blacklist_loader
