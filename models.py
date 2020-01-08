@@ -50,6 +50,7 @@ def rec_courses(_id=None):
         recs = [item for item in mongo.db.rec.find()]  # return list of recorded courses
         for it in recs:
             it["_id"] = str(it["_id"])
+            it['s_time'] = it['s_time'].isoformat()
         return recs
 
 
