@@ -7,6 +7,8 @@ from flask_cors import CORS
 from bson.objectid import ObjectId
 from suds.client import Client
 import datetime
+from flask_admin import Admin
+import dbforms
 
 MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
 ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
@@ -15,8 +17,8 @@ app = Flask(__name__)
 api = Api(app)
 
 app.config["MONGO_URI"] = "mongodb://localhost:27017/students"
-app.config['SECRET_KEY'] = 'some-secret-string'
-app.config['JWT_SECRET_KEY'] = 'jwt-secret-string'
+app.config['SECRET_KEY'] = 'feb7a837-6c72-4ec2-ac2d-7225ee89b1be'
+app.config['JWT_SECRET_KEY'] = '95279529-a66a-4312-a240-2312264db599'
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
@@ -105,4 +107,6 @@ api.add_resource(resources.Test, '/test')
 
 
 if __name__ == "__main__":
+    admin = Admin(app)
+    admin.add_view(dbforms.UserView(mongo.db.users, 'User'))
     app.run(debug=True)
