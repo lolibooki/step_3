@@ -400,3 +400,23 @@ class GetMessages(Resource):
                 item['reply'] = str(item['reply'])
             json_message.append(item)
         return json_message
+
+
+class CourseDetail(Resource):
+    def post(self):
+        parser_copy = parser.copy()
+        parser_copy.add_argument('_id', help='This field cannot be blank', required=True)
+
+        data = parser_copy.parse_args()
+
+        try:
+            if models.ip_courses(_id=data['_id']):
+                return models.ip_courses(_id=data['_id'])
+            elif models.live_courses(_id=data['_id']):
+                return models.live_courses(_id=data['_id'])
+            else:
+                return {'status': 400,
+                        'message': 'id is incorrect'}
+        except Exception as e:
+            return {'status': 400,
+                    'message': 'id not included'}
