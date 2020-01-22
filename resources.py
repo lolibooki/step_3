@@ -89,6 +89,41 @@ class UserRegistration(Resource):
                     'message': 'Something went wrong'}
 
 
+class EditUser(Resource):
+    @jwt_required
+    def post(self):
+        parser_copy = parser.copy()
+        # optional
+        parser_copy.add_argument('fname', required=False)
+        parser_copy.add_argument('lname', required=False)
+        # parser_copy.add_argument('mphone', required=False)
+        parser_copy.add_argument('email', required=False)
+        parser_copy.add_argument('mcode', required=False)
+        # parser_copy.add_argument('pass', required=False)
+        parser_copy.add_argument('phone', required=False)
+        parser_copy.add_argument('state', required=False)
+        parser_copy.add_argument('city', required=False)
+        parser_copy.add_argument('address', required=False)
+
+        data = parser_copy.parse_args()
+
+        current_user = models.find_user({"mphone": data['mphone']})
+
+        updated_user = dict()
+        for item in data:
+            if not data[item]:
+                continue
+            else:
+                updated_user[item] = data[item]
+
+        if models.update_user({"_id": current_user["_id"]}, updated_user):
+            return {'status': 200,
+                    'message': 'successfully updated'}
+        else:
+            return {'status': 500,
+                    'message': 'internal error'}
+
+
 # TODO: error handling the incorrect user name
 class UserLogin(Resource):
     def post(self):
