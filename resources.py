@@ -21,7 +21,7 @@ MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
 ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
 MOBILE = '09190734256'
-EMAIL = 'salamat@salamat.ir'
+EMAIL = 'salamat@mst-arman.ir'
 SERVER_IP = 'http://136.243.32.187'
 UPLOAD_FOLDER = "static/uploads"
 ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=30)  # access token expiration time
