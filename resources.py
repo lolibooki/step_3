@@ -343,7 +343,7 @@ class GetPayUrl(Resource):
                                                MOBILE,
                                                callback_url)
         # for debug
-        print(result, course_price, callback_url, payment_desc)
+        # print(result, course_price, callback_url, payment_desc)
         if result.Status == 100:
             return {'status': 200,
                     'url': 'https://www.zarinpal.com/pg/StartPay/' + result.Authority}
