@@ -22,7 +22,7 @@ ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
 MOBILE = '09190734256'
 EMAIL = 'salamat@mst-arman.ir'
-SERVER_IP = 'http://136.243.32.187'
+SERVER_IP = 'https://salamat.mst-arman.ir'
 UPLOAD_FOLDER = "static/uploads"
 ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=30)  # access token expiration time
 parser = reqparse.RequestParser()
