@@ -21,8 +21,8 @@ MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
 ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
 MOBILE = '09190734256'
-EMAIL = 'salamat@salamat.ir'
-SERVER_IP = 'http://136.243.32.187'
+EMAIL = 'salamat@mst-arman.ir'
+SERVER_IP = 'https://salamat.mst-arman.ir'
 UPLOAD_FOLDER = "static/uploads"
 ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=30)  # access token expiration time
 parser = reqparse.RequestParser()
@@ -353,7 +353,7 @@ class GetPayUrl(Resource):
                                                MOBILE,
                                                callback_url)
         # for debug
-        print(result, course_price, callback_url, payment_desc)
+        # print(result, course_price, callback_url, payment_desc)
         if result.Status == 100:
             return {'status': 200,
                     'url': 'https://www.zarinpal.com/pg/StartPay/' + result.Authority}
