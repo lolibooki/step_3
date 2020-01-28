@@ -296,7 +296,6 @@ class GetUserRecCourses(Resource):
         return courses
 
 
-# TODO: ip course needs to be check if is currently in users courses or not
 class GetPayUrl(Resource):
     @jwt_required
     def post(self):
@@ -315,6 +314,9 @@ class GetPayUrl(Resource):
                         'message': 'this course is currently purchased'}
             courses = models.ip_courses(_id=data['_id'])
         elif data['ctype'] == "rec":
+            if ObjectId(data["_id"]) in user["reccourse"].keys():
+                return {'status': 405,
+                        'message': 'this course is currently purchased'}
             courses = models.rec_courses(_id=data['_id'])
         elif data['ctype'] == "liv":
             if ObjectId(data["_id"]) in user["livecourse"].keys():
