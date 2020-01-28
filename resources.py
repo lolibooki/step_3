@@ -159,7 +159,7 @@ class UserLogin(Resource):
                                                                            'address']}
             }
         else:
-            logging.warning('unsuccessful login attempt. ip: {}'.format(reqparse.request.remote_addr))
+            logging.warning('unsuccessful login attempt. ip: {}'.format(reqparse.request.headers.getlist("X-Real-IP")))
             return {'status': 400,
                     'message': 'Wrong credentials'}
 
@@ -200,32 +200,35 @@ class TokenRefresh(Resource):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity=current_user,
                                            expires_delta=ACCESS_TOKEN_EXPIRE)
-        logging.info('request for refreshing token. user: {} ip: {}'.format(current_user, reqparse.request.remote_addr))
+        logging.info('request for refreshing token. user: {} ip: {}'.format(
+            current_user,
+            reqparse.request.headers.getlist("X-Real-IP")
+        ))
         return {'status': 200,
                 'access_token': access_token}
 
 
 class GetLiveClasses(Resource):
     def get(self):
-        logging.info('get live class request. ip: {}'.format(reqparse.request.remote_addr))
+        logging.info('get live class request. ip: {}'.format(reqparse.request.headers.getlist("X-Real-IP")))
         return models.live_classes()
 
 
 class GetRecordedCourses(Resource):
     def get(self):
-        logging.info('get recorded courses request. ip: {}'.format(reqparse.request.remote_addr))
+        logging.info('get recorded courses request. ip: {}'.format(reqparse.request.headers.getlist("X-Real-IP")))
         return models.rec_courses()
 
 
 class GetLiveCourses(Resource):
     def get(self):
-        logging.info('get live courses request. ip: {}'.format(reqparse.request.remote_addr))
+        logging.info('get live courses request. ip: {}'.format(reqparse.request.headers.getlist("X-Real-IP")))
         return models.live_courses()
 
 
 class GetInPersonCourses(Resource):
     def get(self):
-        logging.info('get in person courses request. ip: {}'.format(reqparse.request.remote_addr))
+        logging.info('get in person courses request. ip: {}'.format(reqparse.request.headers.getlist("X-Real-IP")))
         return models.ip_courses()
 
 
@@ -233,7 +236,7 @@ class Test(Resource):
     @jwt_required
     def post(self):
         current_user = get_jwt_identity()
-        logging.info('TEST check. ip: {}'.format(reqparse.request.remote_addr))
+        logging.info('TEST check. ip: {}'.format(reqparse.request.headers.getlist("X-Real-IP")))
         return current_user
 
 
@@ -293,6 +296,7 @@ class GetUserRecCourses(Resource):
         return courses
 
 
+# TODO: ip course needs to be check if is currently in users courses or not
 class GetPayUrl(Resource):
     @jwt_required
     def post(self):
@@ -302,11 +306,20 @@ class GetPayUrl(Resource):
         parser_copy.add_argument('method', help='This field cannot be blank', required=True)  # 1:full/3:installment
         data = parser_copy.parse_args()
 
+        current_user = get_jwt_identity()
+        user = models.find_user({'mphone': current_user})
+
         if data['ctype'] == "ip":
+            if ObjectId(data["_id"]) in user["ipcourse"]:
+                return {'status': 405,
+                        'message': 'this course is currently purchased'}
             courses = models.ip_courses(_id=data['_id'])
         elif data['ctype'] == "rec":
             courses = models.rec_courses(_id=data['_id'])
         elif data['ctype'] == "liv":
+            if ObjectId(data["_id"]) in user["livecourse"].keys():
+                return {'status': 405,
+                        'message': 'this course is currently purchased'}
             courses = models.live_courses(_id=data['_id'])
         else:
             return {'status': 400,
@@ -325,9 +338,6 @@ class GetPayUrl(Resource):
         except KeyError as e:
             return {'status': 404,
                     'message': e}
-
-        current_user = get_jwt_identity()
-        user = models.find_user({'mphone': current_user})
 
         callback_url = SERVER_IP + '/PayCallback/{}/{}/{}/{}/{}'.format(data['method'],
                                                                         str(user['_id']),
