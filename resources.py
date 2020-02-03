@@ -107,7 +107,7 @@ class EditUser(Resource):
 
         data = parser_copy.parse_args()
 
-        current_user = models.find_user({"mphone": data['mphone']})
+        current_user = models.find_user({"mphone": get_jwt_identity()})
 
         updated_user = dict()
         for item in data:
