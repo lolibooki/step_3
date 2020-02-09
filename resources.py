@@ -15,8 +15,10 @@ import models
 import datetime
 from bson import ObjectId
 import logging
+import skyroom
 
 # TODO: make settings file instead of below!
+skyroom_api = skyroom.SkyroomAPI("apikey-31913-844-c24d3f5800ec9950588abc60c47f303e")
 MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
 ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
 PAYMENT_DESCRIPTION = 'بابت خرید دوره {}'
@@ -117,9 +119,15 @@ class EditUser(Resource):
                 updated_user[item] = data[item]
 
         if models.update_user({"_id": current_user["_id"]}, updated_user):
+            logging.info('user edit. ip: {}, user: {}'.format(reqparse.request.headers.getlist("X-Real-IP"),
+                                                                 current_user["mphone"]))
             return {'status': 200,
                     'message': 'successfully updated'}
         else:
+            logging.info('unsuccessful user edit. ip: {}, user: {}'.format(
+                reqparse.request.headers.getlist("X-Real-IP"),
+                current_user["mphone"]
+            ))
             return {'status': 500,
                     'message': 'internal error'}
 
@@ -268,6 +276,31 @@ class GetUserLiveCourses(Resource):  # TODO: checking users absences
         return courses
 
 
+class LiveCourseUrl(Resource):
+    @jwt_required
+    def post(self):
+        parser_copy = parser.copy()
+        parser_copy.add_argument('_id', help='This field cannot be blank', required=True)
+        data = parser_copy.parse_args()
+
+        current_user = get_jwt_identity()
+        user_srid = models.find_user({'mphone': current_user})["srid"]
+
+        courses_srid = models.live_courses(_id=data['_id'])["srid"]
+
+        params = {"room_id": courses_srid,
+                  "user_id": user_srid,
+                  "language": "fa",
+                  "ttl": 300}
+        try:
+            resp = skyroom_api.getLoginUrl(params=params)
+            return {"status": 200,
+                    "url": resp}
+        except:
+            return {"status": 404,
+                    "message": "not yet started"}
+
+
 # checking for course weeks and does not allow that future weeks include in response json
 class GetUserRecCourses(Resource):
     @jwt_required
@@ -302,7 +335,7 @@ class GetPayUrl(Resource):
         parser_copy = parser.copy()
         parser_copy.add_argument('_id', help='This field cannot be blank', required=True)
         parser_copy.add_argument('ctype', help='This field cannot be blank', required=True)  # ip/rec/liv
-        parser_copy.add_argument('method', help='This field cannot be blank', required=True)  # 1:full/3:installment
+        parser_copy.add_argument('method', help='This field cannot be blank', required=True)  # 1:full/2,3:installment
         data = parser_copy.parse_args()
 
         current_user = get_jwt_identity()

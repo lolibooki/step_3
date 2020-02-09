@@ -9,9 +9,15 @@ from suds.client import Client
 import datetime
 from flask_admin import Admin
 import dbforms
+import logging
+import skyroom
+
+logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 
 MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
 ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
+
+skyroom_api = skyroom.SkyroomAPI("apikey-31913-844-c24d3f5800ec9950588abc60c47f303e")
 
 app = Flask(__name__)
 api = Api(app)
@@ -64,7 +70,12 @@ def verify(method, user, course, price, ctype):
                 elif ctype == 'rec':
                     models.add_user_rec_course(user, course)
                 elif ctype == 'liv':
-                    models.add_user_live_course(user, course)
+                    srid = models.user_has_skyroom(user)
+                    if srid:
+                        models.add_user_live_course(user, course, srid)
+                    else:
+                        srid = models.add_user_skyroom(user)
+                        models.add_user_live_course(user, course, srid)
                 else:
                     return {'status': 400,
                             'message': 'پرداخت شما انجام شد ولی در فرآیند ثبت کلاس مشکلی پیش آمده.'
@@ -105,6 +116,7 @@ api.add_resource(resources.SendMessage, '/mail/send')
 api.add_resource(resources.GetMessages, '/mail/get')
 api.add_resource(resources.CourseDetail, '/getCourseDetail')
 api.add_resource(resources.EditUser, '/editUser')
+api.add_resource(resources.LiveCourseUrl, '/getLiveUrl')
 api.add_resource(resources.Test, '/test')
 
 

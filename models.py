@@ -1,5 +1,5 @@
 # TODO: all functions needs docstring
-from run import mongo
+from run import mongo, skyroom_api
 from bson.objectid import ObjectId
 import datetime
 
@@ -12,8 +12,28 @@ def find_user(key):
     return mongo.db.users.find_one(key)
 
 
+def user_has_skyroom(user):
+    srid = find_user({"_id": ObjectId(user)})["srid"]
+    if srid == 0:
+        return False
+    else:
+        return srid
+
+
+def add_user_skyroom(user):
+    user = find_user({"_id": ObjectId(user)})
+    params = {"username": user["mphone"],
+              "password": user["mphone"],
+              "nickname": user["lname"],
+              "status": 1,
+              "is_public": False}
+    srid = skyroom_api.createUser(params=params)
+    update_user(ObjectId(user), {"srid": srid})
+    return srid
+
+
 def update_user(user, data):
-    if mongo.db.users.update(user, {"$set":data}):
+    if mongo.db.users.update(user, {"$set": data}):
         return True
     return False
 
@@ -108,8 +128,11 @@ def get_user_live_course(course_id):
     return mongo.db.livc.find_one({'_id': ObjectId(course_id)})
 
 
-def add_user_live_course(user_id, course_id):
-    temp = find_user({"_id": ObjectId(user_id)})['livecourse']
+def add_user_live_course(user_id, course_id, srid):
+    user = find_user({"_id": ObjectId(user_id)})
+    course_srid = live_courses(_id=course_id)["srid"]
+    skyroom_api.addUserRooms(params={"user_id": srid, "rooms": [{"room_id": course_srid}]})
+    temp = user['livecourse']
     temp[ObjectId(course_id)] = dict()
     mongo.db.users.update({"_id": ObjectId(user_id)}, {'$set': {'livecourse': temp}})
 
