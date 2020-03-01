@@ -71,9 +71,9 @@ class UserRegistration(Resource):
             "city": data['city'],
             "address": data['address'],
             "pass": sha256.hash(data['pass']),
-            "ipcourse": "",
-            "livecourse": "",
-            "reccourse": ""
+            "ipcourse": [],
+            "livecourse": {},
+            "reccourse": {}
 
         }
 
