@@ -82,20 +82,23 @@ def verify(method, user, course, price, ctype):
                                        'لطفا با پشتیبانی تماس بگیرید.'
                                        'شماره مرجع پرداخت شما:',
                             'refID': str(result.RefID)}
-                return {'status': 200,
-                        'refID': str(result.RefID)}
+                # return {'status': 200,
+                #         'refID': str(result.RefID)}
+                return render_template("payment.html", refID=result.RefID)
             else:
                 return {'status': 404,
                         'message': 'not found'}
         elif result.Status == 101:
             return 'Transaction submitted : ' + str(result.Status)
         else:
-            return {'status': 403,
-                    'message': 'Transaction failed',
-                    'refID': str(result.Status)}
+            # return {'status': 403,
+            #         'message': 'Transaction failed',
+            #         'refID': str(result.Status)}
+            return render_template("payment-error.html")
     else:
-        return {'status': 404,
-                'message': 'Transaction failed or canceled by user'}
+        # return {'status': 404,
+        #         'message': 'Transaction failed or canceled by user'}
+        return render_template("payment-error.html")
 
 import models, resources
 

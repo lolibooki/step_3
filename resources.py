@@ -276,6 +276,7 @@ class GetUserLiveCourses(Resource):  # TODO: checking users absences
         return courses
 
 
+# TODO: check if the id is in users courses
 class LiveCourseUrl(Resource):
     @jwt_required
     def post(self):
