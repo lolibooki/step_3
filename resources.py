@@ -364,6 +364,27 @@ class GetPayUrl(Resource):
         else:
             return {'status': 400,
                     'message': 'course type or id is incorrect'}
+
+        if courses['price'] == '0':
+            if data['ctype'] == 'ip':
+                models.add_user_ip_course(user, str(courses["_id"]))
+            elif data['ctype'] == 'rec':
+                models.add_user_rec_course(user, str(courses["_id"]))
+            elif data['ctype'] == 'liv':
+                srid = models.user_has_skyroom(user)
+                if srid:
+                    models.add_user_live_course(user, str(courses["_id"]), srid)
+                else:
+                    srid = models.add_user_skyroom(user)
+                    models.add_user_live_course(user, str(courses["_id"]), srid)
+            else:
+                return {'status': 400,
+                        'message': 'پرداخت شما انجام شد ولی در فرآیند ثبت کلاس مشکلی پیش آمده.'
+                                   'لطفا با پشتیبانی تماس بگیرید.'
+                                   'شماره مرجع پرداخت شما:'}
+            return {'status': 200,
+                    'message': 'free course added to user'}
+
         try:
             # TODO: in db all prices must be in integer form not price with "," sign!
             course_price = int(int(courses['price'].replace(',', ''))/int(data['method']))
