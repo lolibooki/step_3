@@ -367,16 +367,16 @@ class GetPayUrl(Resource):
 
         if courses['price'] == '0':
             if data['ctype'] == 'ip':
-                models.add_user_ip_course(user, str(courses["_id"]))
+                models.add_user_ip_course(str(user["_id"]), str(courses["_id"]))
             elif data['ctype'] == 'rec':
-                models.add_user_rec_course(user, str(courses["_id"]))
+                models.add_user_rec_course(str(user["_id"]), str(courses["_id"]))
             elif data['ctype'] == 'liv':
-                srid = models.user_has_skyroom(user)
+                srid = models.user_has_skyroom(str(user["_id"]))
                 if srid:
-                    models.add_user_live_course(user, str(courses["_id"]), srid)
+                    models.add_user_live_course(str(user["_id"]), str(courses["_id"]), srid)
                 else:
-                    srid = models.add_user_skyroom(user)
-                    models.add_user_live_course(user, str(courses["_id"]), srid)
+                    srid = models.add_user_skyroom(str(user["_id"]))
+                    models.add_user_live_course(str(user["_id"]), str(courses["_id"]), srid)
             else:
                 return {'status': 400,
                         'message': 'پرداخت شما انجام شد ولی در فرآیند ثبت کلاس مشکلی پیش آمده.'
