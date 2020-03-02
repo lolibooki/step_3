@@ -8,6 +8,7 @@ from bson.objectid import ObjectId
 from suds.client import Client
 import datetime
 from flask_admin import Admin
+from telegram import Telegram
 import dbforms
 import logging
 import skyroom
@@ -18,6 +19,10 @@ MMERCHANT_ID = 'aca6038e-06a7-11e9-bcad-005056a205be'
 ZARINPAL_WEBSERVICE = 'https://zarinpal.com/pg/services/WebGate/wsdl'
 
 skyroom_api = skyroom.SkyroomAPI("apikey-31913-844-c24d3f5800ec9950588abc60c47f303e")
+
+telegram_token = '1065759842:AAFi_HnB_SzjgJC0bC0CjiPtsVS2pTENUyI'
+telegram_chat_id = ['680596325', '652176141']
+telegram_bot = Telegram(telegram_token, telegram_chat_id)
 
 app = Flask(__name__)
 api = Api(app)
@@ -59,6 +64,8 @@ def check_if_token_in_blacklist(decrypted_token):
            methods=['GET', 'POST'])
 def verify(method, user, course, price, ctype):
     client = Client(ZARINPAL_WEBSERVICE)
+    _user = models.find_user({"_id": ObjectId(user)})
+    _course = None
     if request.args.get('Status') == 'OK':
         result = client.service.PaymentVerification(MMERCHANT_ID,
                                                     request.args['Authority'],
@@ -67,16 +74,20 @@ def verify(method, user, course, price, ctype):
             if models.submit_pay(user, course, result.RefID, method):
                 if ctype == 'ip':
                     models.add_user_ip_course(user, course)
+                    _course = models.ip_courses(_id=course)
                 elif ctype == 'rec':
                     models.add_user_rec_course(user, course)
+                    _course = models.rec_courses(_id=course)
                 elif ctype == 'liv':
                     srid = models.user_has_skyroom(user)
+                    _course = models.live_courses(_id=course)
                     if srid:
                         models.add_user_live_course(user, course, srid)
                     else:
                         srid = models.add_user_skyroom(user)
                         models.add_user_live_course(user, course, srid)
                 else:
+                    telegram_bot.send_message("کاربر <b>{}</b> پول پرداخت کرد ولی دوره ثبت نشد".format(_user['mphone']))
                     return {'status': 400,
                             'message': 'پرداخت شما انجام شد ولی در فرآیند ثبت کلاس مشکلی پیش آمده.'
                                        'لطفا با پشتیبانی تماس بگیرید.'
@@ -84,6 +95,11 @@ def verify(method, user, course, price, ctype):
                             'refID': str(result.RefID)}
                 # return {'status': 200,
                 #         'refID': str(result.RefID)}
+                telegram_bot.send_message("user created: name:<b>{} {}</b>, "
+                                          "mobile:<b>{}</b>, course:<b>{}</b>".format(_user['fname'],
+                                                                                      _user['lname'],
+                                                                                      _user['mphone'],
+                                                                                      _course['title']))
                 return render_template("payment.html", refID=result.RefID)
             else:
                 return {'status': 404,

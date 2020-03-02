@@ -10,6 +10,7 @@ from flask_jwt_extended import (create_access_token,
 # from userschema import validate_user
 # from bson.json_util import dumps
 from suds.client import Client
+from telegram import Telegram
 import werkzeug, os
 import models
 import datetime
@@ -30,6 +31,10 @@ ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=30)  # access token expiration 
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
 # parser.add_argument('password', help = 'This field cannot be blank', required = True)
+
+telegram_token = '1065759842:AAFi_HnB_SzjgJC0bC0CjiPtsVS2pTENUyI'
+telegram_chat_id = ['680596325', '652176141']
+telegram_bot = Telegram(telegram_token, telegram_chat_id)
 
 logging.basicConfig(format='%s(asctime)s - %(message)s',
                     level=logging.DEBUG,
@@ -83,6 +88,9 @@ class UserRegistration(Resource):
                                                expires_delta=ACCESS_TOKEN_EXPIRE)
             refresh_token = create_refresh_token(identity=data['mphone'])
             logging.info('user created. user: {}'.format(data['mphone']))
+            telegram_bot.send_message("new user created, name: <b>{} {}</b>, phone: <b>{}</b>".format(data['fname'],
+                                                                                                      data['lname'],
+                                                                                                      data['mphone']))
             return {
                 'status': 200,
                 'message': 'User {} {} was created'.format(data['fname'], data['lname']),
@@ -379,9 +387,7 @@ class GetPayUrl(Resource):
                     models.add_user_live_course(str(user["_id"]), str(courses["_id"]), srid)
             else:
                 return {'status': 400,
-                        'message': 'پرداخت شما انجام شد ولی در فرآیند ثبت کلاس مشکلی پیش آمده.'
-                                   'لطفا با پشتیبانی تماس بگیرید.'
-                                   'شماره مرجع پرداخت شما:'}
+                        'message': 'something went wrong'}
             return {'status': 200,
                     'message': 'free course added to user'}
 
