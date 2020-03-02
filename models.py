@@ -131,7 +131,7 @@ def get_user_live_course(course_id):
 def add_user_live_course(user_id, course_id, srid):
     user = find_user({"_id": ObjectId(user_id)})
     course_srid = live_courses(_id=course_id)["srid"]
-    skyroom_api.addUserRooms(params={"user_id": srid, "rooms": [{"room_id": course_srid}]})
+    skyroom_api.addUserRooms(params={"user_id": int(srid), "rooms": [{"room_id": int(course_srid)}]})
     temp = user['livecourse']
     temp[course_id] = dict()
     mongo.db.users.update({"_id": ObjectId(user_id)}, {'$set': {'livecourse': temp}})
