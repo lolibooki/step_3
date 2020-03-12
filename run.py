@@ -136,6 +136,7 @@ api.add_resource(resources.GetMessages, '/mail/get')
 api.add_resource(resources.CourseDetail, '/getCourseDetail')
 api.add_resource(resources.EditUser, '/editUser')
 api.add_resource(resources.LiveCourseUrl, '/getLiveUrl')
+api.add_resource(resources.SubmitPhone, '/sms/submit')
 api.add_resource(resources.Test, '/test')
 
 

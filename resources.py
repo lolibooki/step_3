@@ -11,11 +11,14 @@ from flask_jwt_extended import (create_access_token,
 # from bson.json_util import dumps
 from suds.client import Client
 from telegram import Telegram
+from sms import Sms
 import werkzeug, os
 import models
 import datetime
 from bson import ObjectId
 import logging
+import redis
+import random
 import skyroom
 
 # TODO: make settings file instead of below!
@@ -28,6 +31,7 @@ EMAIL = 'salamat@mst-arman.ir'
 SERVER_IP = 'https://salamat.mst-arman.ir'
 UPLOAD_FOLDER = "static/uploads"
 ACCESS_TOKEN_EXPIRE = datetime.timedelta(minutes=30)  # access token expiration time
+CODE_TIME_EXPIRE = 150
 parser = reqparse.RequestParser()
 # parser.add_argument('fname', help = 'This field cannot be blank', required = True)
 # parser.add_argument('password', help = 'This field cannot be blank', required = True)
@@ -36,9 +40,33 @@ telegram_token = '1065759842:AAFi_HnB_SzjgJC0bC0CjiPtsVS2pTENUyI'
 telegram_chat_id = ['680596325', '652176141']
 telegram_bot = Telegram(telegram_token, telegram_chat_id)
 
+sms_panel = Sms()
+redis_cli = redis.Redis()
+
 logging.basicConfig(format='%s(asctime)s - %(message)s',
                     level=logging.DEBUG,
                     filename='logs/app.log')
+
+
+class SubmitPhone(Resource):
+    def post(self):
+        parser_copy = parser.copy()
+        
+        parser_copy.add_argument('mphone', help='This field cannot be blank', required=True)
+        
+        data = parser_copy.parse_args()
+        recipient_number = "+98{}".format(data['mphone'][1:])
+        
+        code = random.randint(10000, 100000)
+        sent = sms_panel.send_code(code, recipient_number)
+        if sent[0] is True:
+            redis_cli.set(data['mphone'], code, CODE_TIME_EXPIRE)
+            return {'status': 200,
+                    'message': 'sms sent, waiting for code submition'}
+        else:
+            return {'status': 400,
+                    'message': 'check for number and try again'}
+        
 
 
 class UserRegistration(Resource):
@@ -51,7 +79,7 @@ class UserRegistration(Resource):
         parser_copy.add_argument('mphone', help='This field cannot be blank', required=True)
         parser_copy.add_argument('email', help='This field cannot be blank', required=True)
         parser_copy.add_argument('mcode', help='This field cannot be blank', required=True)
-        parser_copy.add_argument('pass', help='This field cannot be blank', required=True)
+        # parser_copy.add_argument('pass', help='This field cannot be blank', required=True)
         # not required
         parser_copy.add_argument('phone', required=False)
         parser_copy.add_argument('state', required=False)
@@ -64,6 +92,10 @@ class UserRegistration(Resource):
             logging.warning('request for registering user that exists. user: {}'.format(data['mphone']))
             return {'status': 400,
                     'message': 'User {} already exists'. format(data['mphone'])}
+            
+        if redis_cli.get(data['mphone']) != b'accepted':
+            return {'status': 404,
+                    'message': 'you should first submit yout mobile'}
 
         new_user = {
             "fname": data['fname'],
@@ -75,7 +107,6 @@ class UserRegistration(Resource):
             "state": data['state'],
             "city": data['city'],
             "address": data['address'],
-            "pass": sha256.hash(data['pass']),
             "ipcourse": [],
             "livecourse": {},
             "reccourse": {}
@@ -149,15 +180,22 @@ class UserLogin(Resource):
     def post(self):
         parser_copy = parser.copy()
         parser_copy.add_argument('mphone', help='This field cannot be blank', required=True)
-        parser_copy.add_argument('pass', help='This field cannot be blank', required=True)
+        parser_copy.add_argument('code', help='This field cannot be blank', required=True)
         data = parser_copy.parse_args()
 
         if not models.find_user({"mphone": data['mphone']}):
+            if redis_cli.get(data['mphone']).decode('utf-8') == data['code']:
+                redis_cli.set(data['mphone'], 'accepted')
+                return {'status': 201,
+                        'message': 'please register'}
+            else:
+                return {'status': 400,
+                        'message': 'wrong verification code'}
             return {'status': 400,
                     'message': 'User {} doesn\'t exist'.format(data['mphone'])}
 
         current_user = models.find_user({"mphone": data['mphone']})
-        if sha256.verify(data['pass'], current_user['pass']):
+        if redis_cli.get(data['mphone']).decode('utf-8') == data['code']:
             access_token = create_access_token(identity=data['mphone'],
                                                expires_delta=ACCESS_TOKEN_EXPIRE)
             refresh_token = create_refresh_token(identity=data['mphone'])
@@ -181,7 +219,7 @@ class UserLogin(Resource):
         else:
             logging.warning('unsuccessful login attempt. ip: {}'.format(reqparse.request.headers.getlist("X-Real-IP")))
             return {'status': 400,
-                    'message': 'Wrong credentials'}
+                    'message': 'Wrong verification code'}
 
 
 class UserLogoutAccess(Resource):
