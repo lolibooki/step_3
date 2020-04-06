@@ -77,10 +77,10 @@ class UserRegistration(Resource):
         parser_copy.add_argument('fname', help='This field cannot be blank', required=True)
         parser_copy.add_argument('lname', help='This field cannot be blank', required=True)
         parser_copy.add_argument('mphone', help='This field cannot be blank', required=True)
-        parser_copy.add_argument('email', help='This field cannot be blank', required=True)
         parser_copy.add_argument('mcode', help='This field cannot be blank', required=True)
         # parser_copy.add_argument('pass', help='This field cannot be blank', required=True)
         # not required
+        parser_copy.add_argument('email', required=False)
         parser_copy.add_argument('phone', required=False)
         parser_copy.add_argument('state', required=False)
         parser_copy.add_argument('city', required=False)
