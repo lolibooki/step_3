@@ -51,13 +51,13 @@ def ip_courses(_id=None):
         ip = mongo.db.ip.find_one({"_id": ObjectId(_id)})
         if ip:
             ip["_id"] = str(ip["_id"])
-            ip['s_time'] = ip['s_time'].isoformat()
+            #ip['s_time'] = ip['s_time'].isoformat()
         return ip
     else:
         ips = [item for item in mongo.db.ip.find()]  # return list of in person courses
         for it in ips:
             it["_id"] = str(it["_id"])
-            it['s_time'] = it['s_time'].isoformat()
+            #it['s_time'] = it['s_time'].isoformat()
         return ips
 
 
@@ -76,13 +76,13 @@ def rec_courses(_id=None):
         rec = mongo.db.rec.find_one({"_id": ObjectId(_id)})
         if rec:
             rec["_id"] = str(rec["_id"])
-            # rec['s_time'] = rec['s_time'].isoformat()
+            rec['s_time'] = rec['s_time'].isoformat()
         return rec
     else:
         recs = [item for item in mongo.db.rec.find()]  # return list of recorded courses
         for it in recs:
             it["_id"] = str(it["_id"])
-            # it['s_time'] = it['s_time'].isoformat()
+            it['s_time'] = it['s_time'].isoformat()
         return recs
 
 
