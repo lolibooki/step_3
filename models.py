@@ -51,13 +51,13 @@ def ip_courses(_id=None):
         ip = mongo.db.ip.find_one({"_id": ObjectId(_id)})
         if ip:
             ip["_id"] = str(ip["_id"])
-            # ip['s_time'] = ip['s_time'].isoformat()
+            ip['s_time'] = ip['s_time'].isoformat()
         return ip
     else:
         ips = [item for item in mongo.db.ip.find()]  # return list of in person courses
         for it in ips:
             it["_id"] = str(it["_id"])
-            # it['s_time'] = it['s_time'].isoformat()
+            it['s_time'] = it['s_time'].isoformat()
         return ips
 
 
@@ -68,7 +68,7 @@ def get_user_ip_course(course_id):
 def add_user_ip_course(user_id, course_id):
     temp = find_user({"_id": ObjectId(user_id)})['ipcourse']
     temp.append(ObjectId(course_id))
-    mongo.db.users.update({"_id": ObjectId(user_id)}, {'$set':{'ipcourse': temp}})
+    mongo.db.users.update({"_id": ObjectId(user_id)}, {'$set': {'ipcourse': temp}})
 
 
 def rec_courses(_id=None):
