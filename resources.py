@@ -564,6 +564,8 @@ class CourseDetail(Resource):
                 return models.ip_courses(_id=data['_id'])
             elif models.live_courses(_id=data['_id']):
                 return models.live_courses(_id=data['_id'])
+            elif models.rec_courses(_id=data['_id']):
+                return models.rec_courses(_id=data['_id'])
             else:
                 return {'status': 400,
                         'message': 'id is incorrect'}
