@@ -275,7 +275,10 @@ class GetLiveClasses(Resource):
 class GetRecordedCourses(Resource):
     def get(self):
         logging.info('get recorded courses request. ip: {}'.format(reqparse.request.headers.getlist("X-Real-IP")))
-        return models.rec_courses()
+        rec_courses = models.rec_courses()
+        for item in rec_courses:
+            item['weeks'] = None
+        return rec_courses
 
 
 class GetLiveCourses(Resource):
