@@ -568,7 +568,9 @@ class CourseDetail(Resource):
             elif models.live_courses(_id=data['_id']):
                 return models.live_courses(_id=data['_id'])
             elif models.rec_courses(_id=data['_id']):
-                return models.rec_courses(_id=data['_id'])
+                course_list = models.rec_courses(_id=data['_id'])
+                course_list["weeks"] = None
+                return course_list
             else:
                 return {'status': 400,
                         'message': 'id is incorrect'}
