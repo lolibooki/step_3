@@ -362,14 +362,11 @@ class GetUserRecCourses(Resource):
         current_user = get_jwt_identity()
         user = models.find_user({'mphone': current_user})
         rec_course_ids = [ObjectId(_id) for _id in user['reccourse'].keys()]
-        print(rec_course_ids)
         current_date = datetime.datetime.now()
         current_time = datetime.date(current_date.year, current_date.month, current_date.day).isocalendar()
         courses = list()
         for item in rec_course_ids:
-            print(item)
             current_course = models.get_user_rec_course(item)
-            print(current_course)
             current_course['_id'] = str(current_course['_id'])
             course_time = datetime.date(current_course['s_time'].year,
                                         current_course['s_time'].month,
