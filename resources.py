@@ -361,7 +361,7 @@ class GetUserRecCourses(Resource):
     def post(self):
         current_user = get_jwt_identity()
         user = models.find_user({'mphone': current_user})
-        rec_course_ids = [ObjectId(_id) for _id in user['reccourse'].keys()]
+        rec_course_ids = [_id for _id in user['reccourse'].keys()]
         current_date = datetime.datetime.now()
         current_time = datetime.date(current_date.year, current_date.month, current_date.day).isocalendar()
         courses = list()
